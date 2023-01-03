@@ -10,7 +10,7 @@ productRoute.get(
         const pageSize=6
         const page=Number(req.query.pageNumber) || 1 ;
         const keyword = req.query.keyword ? {
-            name:{
+            title:{
                 $regex:req.query.keyword,
                 $options: "i",
             },
@@ -21,6 +21,16 @@ productRoute.get(
         res.json({products , page , pages: Math.ceil(count / pageSize)}); 
     })
 );
+//ADMIN GET ALL PRODUCT
+productRoute.get(
+    "/all",
+    protect,
+    admin,
+    asyncHandler(async (req, res) => {
+      const products = await Product.find({}).sort({ _id: -1 });
+      res.json(products);
+    })
+  );
 //GET SINGLE PRODUCT
 productRoute.get(
     "/:id",
@@ -43,12 +53,13 @@ productRoute.post(
     "/:id/review",
     protect,
     asyncHandler(async (req,res)=>{
-        const {comment}=req.body
+        const {comment,rating}=req.body
         const product =await Product.findById(req.params.id);
         if(product){
             const review={
                 name:req.user.name,
                 comment,
+                rating,
                 user:req.user._id,
             };
             product.reviews.push(review);
@@ -171,7 +182,7 @@ productRoute.post(
 protect,
 admin,
 asyncHandler(async (req, res) => {
-    const { title, author, description, bookcode,image, countInStock,forstaffonly } = req.body;
+    const { title, author, description, bookcode,image, countInStock} = req.body;
     const productExist = await Product.findOne({ title });
     if (productExist) {
     res.status(400);
@@ -184,8 +195,6 @@ asyncHandler(async (req, res) => {
         image,
         countInStock,
         bookcode,
-        forstaffonly,
-        user: req.user._id,
     });
     if (product) {
         const createdproduct = await product.save();
@@ -204,7 +213,7 @@ productRoute.put(
     protect,
     admin,
     asyncHandler(async (req, res) => {
-      const { title, author, description, image, countInStock,bookcode,forstaffonly} = req.body;
+      const { title, author, description, image, countInStock,bookcode} = req.body;
       const product = await Product.findById(req.params.id);
       if (product) {
 
@@ -214,8 +223,6 @@ productRoute.put(
         product.image = image || product.image;
         product.countInStock = countInStock || product.countInStock;
         product.bookcode=bookcode || product.bookcode;
-        product.forstaffonly=forstaffonly || product.forstaffonly;
-
         const updatedProduct = await product.save();
         res.json(updatedProduct);
       } else {

@@ -25,15 +25,8 @@ const orderSchema = mongoose.Schema(
       required: true 
 
     },
-    faculty:
-    {
-      type:String,
-      require:true
-    },
-    signiture:
-    {type:String,
-      required:true}
-      ,
+
+
     takedate:{
         type:String,
         required:true

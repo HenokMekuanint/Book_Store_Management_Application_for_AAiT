@@ -2,13 +2,14 @@ import express from 'express';
 import asyncHandler from "express-async-handler";
 import Order from '../models/OrderModel.js';
 import {admin, protect} from "../Middleware/AuthMiddleware.js";
+import Product from '../Models/BookModel.js';
+import book from '../Models/BookModel.js';
 const orderRouter=express.Router();
 // ORDER ROUTES
 orderRouter.post(
-    "/:id",
+    "/",
     protect,
     asyncHandler(async (req,res)=>{
-
           const have_order= await Order.findOne({user:req.user.id})
 
             if (have_order &&  have_order.isreturned===false ){
@@ -16,25 +17,35 @@ orderRouter.post(
               throw new Error("You have aleady ordered")
             }
             else{
-              const { id_no,
-                department,
-                faculty,
-                signiture,
-                takedate,
-                returndate
-              }=req.body;
-              const order = new Order({
-                user:req.user._id,
-                book:req.params.id,
-                id_no:id_no,
-                department:department,
-                faculty:faculty,
-                signiture:signiture,
-                takedate:takedate,
-                returndate:returndate,
-                    })
-                const createOrder = await order.save();
-                res.status(201).json(createOrder);
+
+              const book = await Product.findById(req.body.orderItems[0].product)
+              if (book.countInStock>0){
+                const { id_no,
+                  department,
+                  takedate,
+                  returndate
+                }=req.body;
+                const order = new Order({
+                  _id:req.user._id,
+                  user:req.user._id,
+                  book:req.body.orderItems[0].product,
+                  id_no:id_no,
+                  department:department,
+                  takedate:takedate,
+                  returndate:returndate,
+                      })
+                  
+                  book.countInStock=book.countInStock-1
+                  book.save()
+                  const createOrder = await order.save();
+                  res.status(201).json(createOrder);
+              }
+              else{
+                res.status(400)
+                throw new Error(" Book is Out of Stock")
+                
+              }
+              
             }
 
             }
@@ -43,44 +54,32 @@ orderRouter.post(
 
 );
 
+//ADMIN GET ALL ORDERS
 
-// GET ORDER BY ID
 orderRouter.get(
-  "/:id",
+  "/all",
   protect,
   admin,
   asyncHandler(async (req, res) => {
-    const orders=await Order.findById(req.params.id);
-    if (orders){
-
-      res.status(200).json(orders)
-    }
-    else{
-      res.status(400)
-      throw new Error("Order Not Found")
-    }
-    
+    const orders = await Order.find({}).sort({ _id: -1 }).populate(
+      "user",
+      "name email"
+    );
+    res.json(orders);
   })
 );
 
-//GET ALL ORDERS
 
+
+
+// USER LOGIN ORDERS
 orderRouter.get(
   "/",
   protect,
-  admin,
   asyncHandler(async (req, res) => {
-    const orders=await Order.find({});
-    if (orders){
-
-      res.status(200).json(orders)
-    }
-    else{
-      res.status(400)
-      throw new Error("There is no Order")
-    }
-    
+   
+    const order = await Order.find({ user: req.user._id }).sort({ _id: -1 });
+    res.json(order);
   })
 );
-
 export default orderRouter;

@@ -28,7 +28,7 @@ const bookSchema=mongoose.Schema({
     countInStock:{
         type:Number,
         require:true,
-        default:0,
+        default:1,
     },
     bookcode:{
         type:String,
@@ -41,7 +41,15 @@ const bookSchema=mongoose.Schema({
     forstaffonly:{
         type:Boolean,
         default:false
-    }
+    },
+    numsReviews:{
+        type:Number,
+        default:0
+    },
+    rating:{
+        type:Number,
+        default:0
+    },
 },
 {
     timestamps:true
