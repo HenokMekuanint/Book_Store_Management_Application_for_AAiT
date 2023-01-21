@@ -10,16 +10,36 @@ const orderSchema = mongoose.Schema(
     orderItems: [
       {
         title: { type: String, required: true },
-        author: { type: Number, required: true },
-        description: { type: String, required: true },
-        image: { type: String, required: true},
+        author: { type: String, required: true },
+        description:{type:String,require:true},
+        bookcode:{type:String,required:true},
         book: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
           ref: "book",
         },
+        
       },
     ],
+    id_no: 
+    { 
+      type: String, 
+      required: true
+     },
+     department:
+    { 
+      type: String, required: true 
+
+    },
+    faculty:
+    {
+      type:String,
+      require:true
+    },
+    signiture:
+    {type:String,
+      required:true}
+      ,
     takeDate:{
         type:Date,
     },
