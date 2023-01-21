@@ -5,6 +5,7 @@ import User from '../Models/UserModel.js';
 import generateToken from '../utils/generateToken.js';
 
 const userRoute=express.Router();
+console.log("sdf");
 // LOGIN
 userRoute.post(
     "/login",
@@ -34,6 +35,7 @@ userRoute.post(
 userRoute.post(
     "/",
     asyncHandler(async (req,res) => {
+        
         const { name,email,password} =req.body;
         const userExists = await User.findOne({ email })
         if ( userExists ) {
@@ -51,6 +53,7 @@ if (user) {
         name:user.name,
         email:user.email,
         isAdmin:user.isAdmin,
+        isStaff:user.isStaff,
         token:generateToken(user._id),
     })
 }
