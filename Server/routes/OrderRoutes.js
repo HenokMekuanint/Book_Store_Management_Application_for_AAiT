@@ -40,6 +40,26 @@ orderRouter.get(
   protect,
   admin,
   asyncHandler(async (req, res) => {
+    const orders=await Order.findById(req.params.id);
+    if (orders){
+
+      res.status(200).json(orders)
+    }
+    else{
+      res.status(400)
+      throw new Error("Order Not Found")
+    }
+    
+  })
+);
+
+//GET ALL ORDERS
+
+orderRouter.get(
+  "/",
+  protect,
+  admin,
+  asyncHandler(async (req, res) => {
     const orders=await Order.find({});
     if (orders){
 

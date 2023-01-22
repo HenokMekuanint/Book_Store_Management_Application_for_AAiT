@@ -34,11 +34,11 @@ const orderSchema = mongoose.Schema(
     {type:String,
       required:true}
       ,
-    takeDate:{
+    takedate:{
         type:String,
         required:true
     },
-    returnDate:{
+    returndate:{
         type:String,
         required:true
     }
