@@ -65,7 +65,6 @@ productRoute.post(
 //Fetch all review
 productRoute.get(
     "/:id/review",
-    protect,
     asyncHandler(async (req,res)=>{
         const product =await Product.findById(req.params.id);
         if (product){
@@ -78,7 +77,7 @@ productRoute.get(
     }
     )
 )
-// DELETE REVIEW
+// DELETE SINGLE REVIEW
 productRoute.delete(
 "/:id/review/:revid",
 protect,
@@ -88,23 +87,65 @@ asyncHandler(async (req, res) => {
         const review = await product.reviews.id(
             req.params.revid,
          );
-        if(review.user.toString()===req.user._id.toString()){
-            await review.remove();
-            console.log()
-            res.json({ message: "Product deleted" });
-        }
-        else{
-            res.status(403);
-            throw new Error("not authorized");
-        }
+            if(review){
+                if(review.user.toString()===req.user._id.toString()){
+                    product.reviews.pull(review);
+                    await product.save();
+                    res.json({ message: "Product deleted" });
+                }
+                else{
+                    res.status(403);
+                    throw new Error("not authorized");
+                }
+            }
+            else{
+                res.status(404);
+                throw new Error("Review not Found");
+            }
         }
 
         else {
     res.status(404);
-    throw new Error("review not Found");
+    throw new Error("Product  not Found");
     }
 })
 );
+  // UPDATE REVIEW
+productRoute.put(
+    "/:id/review/:revid",
+    protect,
+    asyncHandler(async (req, res) => {
+      const {comment} = req.body;
+      const product = await Product.findById(req.params.id);
+      if (product) {
+        const review = await product.reviews.id(
+            req.params.revid,
+         );
+         if(review){
+            if(review.user.toString()===req.user._id.toString()){
+                if (req.body.comment){
+                    product.reviews.id(req.params.revid).comment=req.body.comment
+                    const updatedProduct = await product.save();
+                    res.json(updatedProduct.reviews);
+                }
+
+            }
+            else{
+                res.status(403);
+                throw new Error("not authorized");
+            }
+           
+          } else {
+            
+        res.status(404);
+        throw new Error("Review not found");
+         }
+
+        res.status(404);
+        throw new Error("Product not found");
+      }
+    })
+  );
 
 
   // DELETE PRODUCT
@@ -173,7 +214,7 @@ productRoute.put(
         product.image = image || product.image;
         product.countInStock = countInStock || product.countInStock;
         product.bookcode=bookcode || product.bookcode;
-        product.forstaffonly=forstaffonly || forstaffonly;
+        product.forstaffonly=forstaffonly || product.forstaffonly;
 
         const updatedProduct = await product.save();
         res.json(updatedProduct);

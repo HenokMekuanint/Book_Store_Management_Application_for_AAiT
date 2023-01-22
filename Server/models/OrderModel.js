@@ -7,20 +7,13 @@ const orderSchema = mongoose.Schema(
       required: true,
       ref: "User",
     },
-    orderItems: [
-      {
-        title: { type: String, required: true },
-        author: { type: String, required: true },
-        description:{type:String,require:true},
-        bookcode:{type:String,required:true},
-        book: {
+
+    book: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
           ref: "book",
         },
-        
-      },
-    ],
+          
     id_no: 
     { 
       type: String, 
@@ -42,10 +35,12 @@ const orderSchema = mongoose.Schema(
       required:true}
       ,
     takeDate:{
-        type:Date,
+        type:String,
+        required:true
     },
     returnDate:{
-        type:Date,
+        type:String,
+        required:true
     }
 
   },
