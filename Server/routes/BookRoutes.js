@@ -1,11 +1,11 @@
 import express from 'express';
 import asyncHandler from "express-async-handler";
 import Product from '../Models/BookModel.js';
-import { admin, protect } from "./../Middleware/AuthMiddleware.js";
+import { staff,admin, protect } from "./../Middleware/AuthMiddleware.js";
 const productRoute=express.Router();
 // GET ALL PRODUCT
 productRoute.get(
-    "/getall",
+    "/",
     asyncHandler(async (req,res)=>{
         const pageSize=6
         const page=Number(req.query.pageNumber) || 1 ;
@@ -46,21 +46,14 @@ productRoute.post(
         const {comment}=req.body
         const product =await Product.findById(req.params.id);
         if(product){
-            const alreadyReviewed = product.reviews.find(
-                (r) => r.user.toString()=== req.user._id.toString()
-            )
-        if (alreadyReviewed) {
-            res.status(400);
-            throw new Error("Product already Reviewed");
-        }
-        const review={
-            name:req.user.name,
-            comment,
-            user:req.user._id,
-        };
-        product.reviews.push(review);
-
-        
+            const review={
+                name:req.user.name,
+                comment,
+                user:req.user._id,
+            };
+            product.reviews.push(review);
+            await product.save();
+            res.json(product);
         }
         else{
             res.status(404);
@@ -69,16 +62,45 @@ productRoute.post(
         
     })
 );
-// ADMIN GET ALL PRODUCT WITHOUT SEARCH AND PEGINATION
+//Fetch all review
 productRoute.get(
-    "/all",
+    "/:id/review",
     protect,
-    admin,
-    asyncHandler(async (req, res) => {
-      const products = await Product.find({}).sort({ _id: -1 });
-      res.json(products);
-    })
-  );
+    asyncHandler(async (req,res)=>{
+        const product =await Product.findById(req.params.id);
+        if (product){
+                res.json(product.reviews);
+        }
+        else{
+            res.status(404);
+            throw new Error("Product not Found")
+        }
+    }
+    )
+)
+// DELETE REVIEW
+productRoute.delete(
+"/:id/review/:revid",
+protect,
+asyncHandler(async (req, res) => {
+    const review = await Product.reviews.findById(req.params.reviews.revid)
+    if (review) {
+        if (review.user === req.user){
+            await review.remove();
+            res.json({ message: "review deleted" });
+        }
+        else{
+            res.status(403);
+            throw new Error("not authorized")
+        }
+   
+    } else {
+    res.status(404);
+    throw new Error("review not Found");
+    }
+})
+);
+
 
   // DELETE PRODUCT
 productRoute.delete(
@@ -136,15 +158,18 @@ productRoute.put(
     protect,
     admin,
     asyncHandler(async (req, res) => {
-      const { name, author, description, image, countInStock,bookcode,forstaffonlyl, } = req.body;
+      const { title, author, description, image, countInStock,bookcode,forstaffonly} = req.body;
       const product = await Product.findById(req.params.id);
       if (product) {
-        product.name = name || product.name;
-        product.price = price || product.price;
+
+        product.title = title || product.title;
+        product.author = author || product.author;
         product.description = description || product.description;
         product.image = image || product.image;
         product.countInStock = countInStock || product.countInStock;
-  
+        product.bookcode=bookcode || product.bookcode;
+        product.forstaffonly=forstaffonly || forstaffonly;
+
         const updatedProduct = await product.save();
         res.json(updatedProduct);
       } else {
