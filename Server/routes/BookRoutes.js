@@ -103,8 +103,8 @@ productRoute.post(
 protect,
 admin,
 asyncHandler(async (req, res) => {
-    const { name, price, description, image, countInStock } = req.body;
-    const productExist = await Product.findOne({ name });
+    const { title, author, description, bookcode,image, countInStock,forstaffonly } = req.body;
+    const productExist = await Product.findOne({ title });
     if (productExist) {
     res.status(400);
     throw new Error("Product name already exist");

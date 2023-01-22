@@ -11,8 +11,8 @@ const app =express();
 connectDatabase();
 app.use(express.json())
 app.use("/api/users",userRoute)
-app.use("/api/products",orderRouter)
-app.use("/api/products", productRoute);
+// app.use("/api/products",orderRouter)
+app.use("/api/books", productRoute);
 app.use(notFound)
 app.use(errorHandler)
 
