@@ -3,12 +3,16 @@ import { errorHandler, notFound } from "./Middleware/Errors.js";
 import userRoute from "./Routes/UserRoutes.js";
 import dotenv from "dotenv";
 import connectDatabase from "./config/MongoDb.js";
+import orderRouter from "./Routes/orderRoutes.js";
+import productRoute from "./routes/BookRoutes.js";
+
 dotenv.config()
 const app =express();
 connectDatabase();
 app.use(express.json())
 app.use("/api/users",userRoute)
-
+app.use("/api/products",orderRouter)
+app.use("/api/products", productRoute);
 app.use(notFound)
 app.use(errorHandler)
 

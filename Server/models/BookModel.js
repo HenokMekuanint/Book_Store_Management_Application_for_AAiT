@@ -12,7 +12,7 @@ const reviewSchema=mongoose.Schema({
 })
 
 const bookSchema=mongoose.Schema({
-    Title:{
+    title:{
         type:String,
         reuqire:true
     },
@@ -39,7 +39,7 @@ const bookSchema=mongoose.Schema({
         require:true,
     },
     forstaffonly:{
-        type:bool,
+        type:Boolean,
         default:false
     }
 },

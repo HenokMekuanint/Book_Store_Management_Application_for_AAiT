@@ -35,17 +35,18 @@ userRoute.post(
 userRoute.post(
     "/",
     asyncHandler(async (req,res) => {
-        
-        const { name,email,password} =req.body;
+        const { name,email,password,isAdmin,isStaff} =req.body;
         const userExists = await User.findOne({ email })
         if ( userExists ) {
             res.status(400)
             throw new Error("User already exists")
         }
 const user =await User.create({
-            name,
-            email,
-            password
+            name:name,
+            email:email,
+            password:password,
+            isAdmin:isAdmin,
+            isStaff:isStaff
             });
 if (user) {
     res.status(201).json({

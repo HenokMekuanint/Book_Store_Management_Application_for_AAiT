@@ -28,7 +28,8 @@ const orderSchema = mongoose.Schema(
      },
      department:
     { 
-      type: String, required: true 
+      type: String, 
+      required: true 
 
     },
     faculty:
