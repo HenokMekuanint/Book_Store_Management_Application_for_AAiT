@@ -83,18 +83,23 @@ productRoute.delete(
 "/:id/review/:revid",
 protect,
 asyncHandler(async (req, res) => {
-    const review = await Product.reviews.findById(req.params.reviews.revid)
-    if (review) {
-        if (review.user === req.user){
+    const product=await Product.findById(req.params.id);
+    if (product) {
+        const review = await product.reviews.id(
+            req.params.revid,
+         );
+        if(review.user.toString()===req.user._id.toString()){
             await review.remove();
-            res.json({ message: "review deleted" });
+            console.log()
+            res.json({ message: "Product deleted" });
         }
         else{
             res.status(403);
-            throw new Error("not authorized")
+            throw new Error("not authorized");
         }
-   
-    } else {
+        }
+
+        else {
     res.status(404);
     throw new Error("review not Found");
     }
