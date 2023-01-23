@@ -41,6 +41,10 @@ const orderSchema = mongoose.Schema(
     returndate:{
         type:String,
         required:true
+    },
+    isreturned:{
+      type:Boolean,
+      default:false,
     }
 
   },
